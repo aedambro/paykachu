@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<title>OppaPay — Payment Request</title>
+<style>
+  :root {
+    --turquoise: #18c9c2;
+    --blue: #4ca8ff;
+    --deep-blue: #248ee8;
+    --text: #111827;
+    --muted: #7b8794;
+    --border: #e7edf2;
+    --soft: #f7fafc;
+    --shadow: 0 24px 70px rgba(38, 130, 170, 0.12);
+    --radius: 24px;
+    --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
+             "Helvetica Neue", Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    min-height: 100%;
+    background: #fff;
+    color: var(--text);
+    font-family: var(--font);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  button, input, select, textarea {
+    font: inherit;
+  }
+
+  button {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .app {
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .background-glow {
+    position: fixed;
+    width: 600px;
+    height: 600px;
+    right: -240px;
+    top: -260px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, rgba(24,201,194,.15), rgba(76,168,255,.08), rgba(255,255,255,0));
+    filter: blur(10px);
+    pointer-events: none;
+  }
+
+  .background-glow.bottom {
+    width: 500px;
+    height: 500px;
+    left: -280px;
+    right: auto;
+    top: auto;
+    bottom: -280px;
+    opacity: .65;
+  }
+
+  header {
+    width: min(1180px, calc(100% - 48px));
+    margin: 0 auto;
+    height: 92px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    z-index: 2;
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--text);
+  }
+
+  .brand-mark {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    color: white;
+    font-size: 18px;
+    font-weight: 800;
+    background: #B8FF00;
+    box-shadow: 0 8px 22px rgba(184, 255, 0, .22);
+  }
+
+  .brand-name {
+    font-size: 20px;
+    font-weight: 750;
+    letter-spacing: -0.55px;
+  }
+
+  .header-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 13px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: rgba(255,255,255,.8);
+    color: #65717d;
+    font-size: 12px;
+    font-weight: 650;
+    backdrop-filter: blur(12px);
+  }
+
+  .status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #2bd4b8;
+    box-shadow: 0 0 0 4px rgba(43,212,184,.11);
+  }
+
+  main {
+    width: min(1180px, calc(100% - 48px));
+    margin: 0 auto;
+    padding: 54px 0 90px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero {
+    max-width: 720px;
+    margin: 0 auto 42px;
+    text-align: center;
+  }
+
+  .eyebrow {
+    display: inline-block;
+    margin-bottom: 14px;
+    color: var(--deep-blue);
+    font-size: 12px;
+    font-weight: 750;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(40px, 6vw, 68px);
+    line-height: .98;
+    letter-spacing: -0.055em;
+    font-weight: 760;
+  }
+
+  .gradient-text {
+    color: #000;
+  }
+
+  .hero p {
+    max-width: 570px;
+    margin: 20px auto 0;
+    color: var(--muted);
+    font-size: 17px;
+    line-height: 1.55;
+    letter-spacing: -0.01em;
+  }
+
+  .workspace {
+    max-width: 780px;
+    margin: 0 auto;
+  }
+
+  .dashboard {
+    margin-bottom: 24px;
+    display: grid;
+    grid-template-columns: 1.35fr 1fr;
+    gap: 14px;
+  }
+
+  .dashboard-main,
+  .dashboard-small {
+    background: #B8FF00;
+    border: 1px solid #B8FF00;
+    border-radius: 24px;
+    box-shadow: 0 16px 45px rgba(38, 130, 170, 0.08);
+    padding: 23px;
+    backdrop-filter: blur(18px);
+  }
+
+  .dashboard-main {
+    min-height: 150px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .dashboard-small-grid {
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .dashboard-small {
+    min-height: 68px;
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .dashboard-label {
+    color: #000;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: -.01em;
+  }
+
+  .dashboard-amount-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .dashboard-main .dashboard-amount-row {
+    margin-top: 10px;
+  }
+
+  .dashboard-amount {
+    font-size: clamp(32px, 5vw, 46px);
+    line-height: 1;
+    letter-spacing: -.045em;
+    font-weight: 760;
+    color: #000;
+  }
+
+  .dashboard-small-amount {
+    font-size: 20px;
+    line-height: 1;
+    letter-spacing: -.035em;
+    font-weight: 720;
+    color: #000;
+  }
+
+  .eye-btn {
+    width: 31px;
+    height: 31px;
+    padding: 0;
+    border: 0;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    color: #000;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .eye-btn:hover {
+    color: #000;
+    background: transparent;
+  }
+
+  .eye-closed {
+    display: none;
+  }
+
+  .eye-btn.is-hidden .eye-open {
+    display: none;
+  }
+
+  .eye-btn.is-hidden .eye-closed {
+    display: block;
+  }
+
+  .card {
+    background: rgba(255,255,255,.92);
+    border: 1px solid rgba(224,232,238,.95);
+    border-radius: 30px;
+    box-shadow: var(--shadow);
+    padding: 34px;
+    backdrop-filter: blur(18px);
+  }
+
+  .card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 28px;
+  }
+
+  .card-head h2 {
+    margin: 0;
+    font-size: 23px;
+    letter-spacing: -.035em;
+  }
+
+  .card-head p {
+    margin: 6px 0 0;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .secure-icon {
+    flex: 0 0 auto;
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    color: #188fc8;
+    background: linear-gradient(135deg, rgba(24,201,194,.12), rgba(76,168,255,.12));
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 18px;
+  }
+
+  .field {
+    margin-bottom: 18px;
+  }
+
+  label {
+    display: block;
+    margin: 0 0 8px 3px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #687583;
+  }
+
+  input, select, textarea {
+    width: 100%;
+    border: 1px solid var(--border);
+    outline: none;
+    background: #fbfdfe;
+    color: var(--text);
+    border-radius: 16px;
+    padding: 14px 15px;
+    transition: border-color .2s, box-shadow .2s, background .2s;
+  }
+
+  input, select {
+    height: 52px;
+  }
+
+  textarea {
+    min-height: 110px;
+    resize: vertical;
+    line-height: 1.45;
+  }
+
+  input::placeholder, textarea::placeholder {
+    color: #b1bbc4;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: rgba(56,164,226,.65);
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(56,164,226,.09);
+  }
+
+  .amount-wrap {
+    position: relative;
+  }
+
+  .amount-wrap input {
+    padding-left: 17px;
+    font-size: 19px;
+    font-weight: 650;
+  }
+
+  .date-wrap input {
+    color-scheme: light;
+  }
+
+  .primary-btn {
+    width: 100%;
+    min-height: 56px;
+    border: 0;
+    border-radius: 17px;
+    cursor: pointer;
+    color: white;
+    font-size: 15px;
+    font-weight: 750;
+    letter-spacing: -.01em;
+    background: #000;
+    box-shadow: 0 13px 27px rgba(0,0,0,.16);
+    transition: transform .16s ease, box-shadow .16s ease, filter .16s ease;
+  }
+
+  .primary-btn:hover {
+    transform: translateY(-1px);
+    filter: saturate(1.04);
+    box-shadow: 0 16px 31px rgba(0,0,0,.20);
+  }
+
+  .primary-btn:active {
+    transform: translateY(1px) scale(.995);
+  }
+
+  .small-note {
+    margin: 13px 0 0;
+    text-align: center;
+    color: #9aa5ae;
+    font-size: 11px;
+    line-height: 1.45;
+  }
+
+  /* Request result */
+  .result {
+    display: none;
+    animation: rise .32s ease both;
+  }
+
+  .result.show {
+    display: block;
+  }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 28px 0;
+  }
+
+  .success-box {
+    padding: 21px;
+    border-radius: 21px;
+    background: linear-gradient(135deg, rgba(24,201,194,.075), rgba(76,168,255,.07));
+    border: 1px solid rgba(91,190,220,.18);
+  }
+
+  .success-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+  }
+
+  .success-check {
+    width: 34px;
+    height: 34px;
+    border-radius: 11px;
+    display: grid;
+    place-items: center;
+    color: white;
+    background: linear-gradient(135deg, #17c8bd, #4a9cf2);
+    font-weight: 800;
+  }
+
+  .success-top strong {
+    display: block;
+    font-size: 15px;
+  }
+
+  .success-top span {
+    display: block;
+    color: #81909c;
+    font-size: 12px;
+    margin-top: 2px;
+  }
+
+  .link-row {
+    display: flex;
+    gap: 9px;
+  }
+
+  .link-box {
+    min-width: 0;
+    flex: 1;
+    border: 1px solid rgba(212,224,232,.95);
+    background: rgba(255,255,255,.75);
+    border-radius: 14px;
+    padding: 13px 14px;
+    color: #557080;
+    font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .copy-btn {
+    border: 1px solid #dce7ed;
+    background: white;
+    color: #4c6877;
+    border-radius: 14px;
+    padding: 0 15px;
+    min-width: 72px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .share-title {
+    margin: 21px 0 11px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #687583;
+  }
+
+  .share-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .share-btn {
+    min-height: 50px;
+    border: 1px solid var(--border);
+    border-radius: 15px;
+    background: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    color: #243542;
+    font-size: 13px;
+    font-weight: 700;
+    transition: transform .15s, border-color .15s, box-shadow .15s;
+  }
+
+  .share-btn:hover {
+    transform: translateY(-1px);
+    border-color: #c8dce7;
+    box-shadow: 0 8px 20px rgba(50,100,130,.08);
+  }
+
+  .share-icon {
+    width: 26px;
+    height: 26px;
+    border-radius: 9px;
+    display: grid;
+    place-items: center;
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  .wa .share-icon {
+    background: #e8fbf2;
+    color: #13a96c;
+  }
+
+  .email .share-icon {
+    background: #eaf4ff;
+    color: #378fdd;
+  }
+
+  .new-btn {
+    width: 100%;
+    margin-top: 10px;
+    min-height: 48px;
+    border: 0;
+    background: transparent;
+    color: #6c7b86;
+    border-radius: 14px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .new-btn:hover {
+    background: #f7fafc;
+  }
+
+  footer {
+    text-align: center;
+    color: #a1abb4;
+    font-size: 11px;
+    padding-top: 24px;
+  }
+
+  @media (max-width: 700px) {
+    header {
+      width: min(100% - 30px, 1180px);
+      height: 74px;
+    }
+
+    main {
+      width: min(100% - 30px, 1180px);
+      padding: 38px 0 55px;
+    }
+
+    .header-pill {
+      display: none;
+    }
+
+    .hero {
+      margin-bottom: 28px;
+    }
+
+    h1 {
+      font-size: clamp(39px, 12vw, 54px);
+    }
+
+    .hero p {
+      font-size: 15px;
+      line-height: 1.5;
+      margin-top: 16px;
+    }
+
+    .card {
+      padding: 23px 18px;
+      border-radius: 24px;
+    }
+
+    .dashboard {
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .dashboard-main {
+      min-height: 135px;
+      padding: 20px;
+    }
+
+    .dashboard-small-grid {
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr;
+      gap: 10px;
+    }
+
+    .dashboard-small {
+      min-height: 82px;
+      padding: 15px;
+    }
+
+    .dashboard-small-amount {
+      font-size: 18px;
+    }
+
+    .card-head {
+      margin-bottom: 23px;
+    }
+
+    .card-head h2 {
+      font-size: 21px;
+    }
+
+    .form-grid {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+
+    .field {
+      margin-bottom: 16px;
+    }
+
+    input, select {
+      height: 51px;
+    }
+
+    textarea {
+      min-height: 100px;
+    }
+
+    .primary-btn {
+      min-height: 55px;
+      border-radius: 16px;
+    }
+
+    .link-row {
+      flex-direction: column;
+    }
+
+    .copy-btn {
+      min-height: 45px;
+    }
+
+    .share-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .share-btn {
+      min-height: 52px;
+    }
+
+    footer {
+      padding-bottom: 10px;
+    }
+  }
+
+  @media (max-width: 380px) {
+    .brand-name { font-size: 18px; }
+    .brand-mark { width: 35px; height: 35px; }
+    .card { padding: 20px 15px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      scroll-behavior: auto !important;
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+</style>
+</head>
+
+<body>
+<div class="app">
+  <div class="background-glow"></div>
+  <div class="background-glow bottom"></div>
+
+  <header>
+    <a class="brand" href="#" aria-label="OppaPay home">
+      <span class="brand-mark">O</span>
+      <span class="brand-name">OppaPay</span>
+    </a>
+
+  </header>
+
+  <main>
+    <section class="hero">
+      <h1>Get paid <span class="gradient-text">without worry.</span></h1>
+      <p>Give your clients confidence.</p>
+    </section>
+
+    <section class="workspace">
+      <section class="dashboard">
+        <div class="dashboard-main">
+          <div class="dashboard-label">Incoming Payment</div>
+          <div class="dashboard-amount-row">
+            <div class="dashboard-amount" data-amount="RM 0">RM 0</div>
+            <button class="eye-btn" type="button" aria-label="Hide incoming payment amount" aria-pressed="false">
+              <svg class="eye-open" width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M2.5 12s3.4-5.5 9.5-5.5 9.5 5.5 9.5 5.5-3.4 5.5-9.5 5.5S2.5 12 2.5 12Z" stroke="currentColor" stroke-width="1.7"/>
+                <circle cx="12" cy="12" r="2.7" stroke="currentColor" stroke-width="1.7"/>
+              </svg>
+              <svg class="eye-closed" width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M3 3l18 18" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                <path d="M10.6 5.8c.45-.06.92-.08 1.4-.08 6.1 0 9.5 5.5 9.5 5.5a16.7 16.7 0 0 1-3.2 3.7M6.4 6.8C3.9 8.5 2.5 11.2 2.5 11.2s3.4 5.5 9.5 5.5c1.1 0 2.1-.17 3.02-.46" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="dashboard-small-grid">
+          <div class="dashboard-small">
+            <div class="dashboard-label">Payment Received</div>
+            <div class="dashboard-amount-row">
+              <div class="dashboard-small-amount" data-amount="RM 0">RM 0</div>
+              <button class="eye-btn" type="button" aria-label="Hide payment received amount" aria-pressed="false">
+                <svg class="eye-open" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M2.5 12s3.4-5.5 9.5-5.5 9.5 5.5 9.5 5.5-3.4 5.5-9.5 5.5S2.5 12 2.5 12Z" stroke="currentColor" stroke-width="1.7"/>
+                  <circle cx="12" cy="12" r="2.7" stroke="currentColor" stroke-width="1.7"/>
+                </svg>
+                <svg class="eye-closed" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M3 3l18 18" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                  <path d="M10.6 5.8c.45-.06.92-.08 1.4-.08 6.1 0 9.5 5.5 9.5 5.5a16.7 16.7 0 0 1-3.2 3.7M6.4 6.8C3.9 8.5 2.5 11.2 2.5 11.2s3.4 5.5 9.5 5.5c1.1 0 2.1-.17 3.02-.46" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="dashboard-small">
+            <div class="dashboard-label">Total Income</div>
+            <div class="dashboard-amount-row">
+              <div class="dashboard-small-amount" data-amount="RM 0">RM 0</div>
+              <button class="eye-btn" type="button" aria-label="Hide total income amount" aria-pressed="false">
+                <svg class="eye-open" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M2.5 12s3.4-5.5 9.5-5.5 9.5 5.5 9.5 5.5-3.4 5.5-9.5 5.5S2.5 12 2.5 12Z" stroke="currentColor" stroke-width="1.7"/>
+                  <circle cx="12" cy="12" r="2.7" stroke="currentColor" stroke-width="1.7"/>
+                </svg>
+                <svg class="eye-closed" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M3 3l18 18" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                  <path d="M10.6 5.8c.45-.06.92-.08 1.4-.08 6.1 0 9.5 5.5 9.5 5.5a16.7 16.7 0 0 1-3.2 3.7M6.4 6.8C3.9 8.5 2.5 11.2 2.5 11.2s3.4 5.5 9.5 5.5c1.1 0 2.1-.17 3.02-.46" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <h2>Create payment request</h2>
+            <p>Enter the details for what your customer is paying for.</p>
+          </div>
+          <div class="secure-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M12 3.5 19 6v5.2c0 4.7-2.8 7.9-7 9.3-4.2-1.4-7-4.6-7-9.3V6l7-2.5Z" stroke="currentColor" stroke-width="1.7"/>
+              <path d="m8.8 12 2.1 2.1 4.4-4.4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+
+        <form id="paymentForm">
+          <div class="form-grid">
+            <div class="field">
+              <label for="currency">Currency</label>
+              <select id="currency" required>
+                <option value="MYR">MYR — Malaysian Ringgit</option>
+                <option value="SGD">SGD — Singapore Dollar</option>
+                <option value="USD">USD — US Dollar</option>
+                <option value="EUR">EUR — Euro</option>
+                <option value="GBP">GBP — British Pound</option>
+                <option value="AUD">AUD — Australian Dollar</option>
+                <option value="JPY">JPY — Japanese Yen</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="amount">Amount</label>
+              <div class="amount-wrap">
+                <input id="amount" type="number" min="0.01" step="0.01" placeholder="0.00" inputmode="decimal" required>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="description">Description</label>
+            <textarea id="description" maxlength="180" placeholder="e.g. Website design deposit, handmade candles, consultation..." required></textarea>
+          </div>
+
+          <div class="field">
+            <label for="completionDate">Product / service completion date</label>
+            <div class="date-wrap">
+              <input id="completionDate" type="date" required>
+            </div>
+          </div>
+
+          <button class="primary-btn" type="submit">Send payment request</button>
+          <p class="small-note">A unique payment-request link will be generated for sharing.</p>
+        </form>
+
+        <div class="result" id="result">
+          <div class="divider"></div>
+
+          <div class="success-box">
+            <div class="success-top">
+              <div class="success-check">✓</div>
+              <div>
+                <strong>Payment request created</strong>
+                <span>Your shareable link is ready.</span>
+              </div>
+            </div>
+
+            <div class="link-row">
+              <div class="link-box" id="requestLink">https://oppapay.example/pay/...</div>
+              <button class="copy-btn" id="copyBtn" type="button">Copy</button>
+            </div>
+
+            <div class="share-title">Send this request via</div>
+
+            <div class="share-grid">
+              <button class="share-btn wa" id="whatsappBtn" type="button">
+                <span class="share-icon">WA</span>
+                WhatsApp
+              </button>
+
+              <button class="share-btn email" id="emailBtn" type="button">
+                <span class="share-icon">✉</span>
+                Email
+              </button>
+            </div>
+          </div>
+
+          <button class="new-btn" id="newRequestBtn" type="button">Create another payment request</button>
+        </div>
+      </div>
+
+      <footer>OppaPay · Payment requests made simple</footer>
+    </section>
+  </main>
+</div>
+
+<script>
+  const form = document.getElementById('paymentForm');
+  const result = document.getElementById('result');
+  const requestLink = document.getElementById('requestLink');
+  const copyBtn = document.getElementById('copyBtn');
+  const whatsappBtn = document.getElementById('whatsappBtn');
+  const emailBtn = document.getElementById('emailBtn');
+  const newRequestBtn = document.getElementById('newRequestBtn');
+
+  let currentRequest = null;
+
+  function formatAmount(amount, currency) {
+    try {
+      return new Intl.NumberFormat(undefined, {
+        style: 'currency',
+        currency: currency
+      }).format(Number(amount));
+    } catch {
+      return `${currency} ${Number(amount).toFixed(2)}`;
+    }
+  }
+
+  function makeRequestId() {
+    const random = Math.random().toString(36).slice(2, 9).toUpperCase();
+    return `${Date.now().toString(36).toUpperCase()}-${random}`;
+  }
+
+  function buildRequestLink(data) {
+    /*
+      This is a front-end demo link.
+      When a real backend/payment provider is connected later,
+      replace this function with the real request URL returned by the server.
+    */
+    const params = new URLSearchParams({
+      id: data.id,
+      currency: data.currency,
+      amount: data.amount,
+      description: data.description,
+      completion: data.completion
+    });
+
+    return `${window.location.origin}${window.location.pathname}?payment=${encodeURIComponent(btoa(unescape(encodeURIComponent(params.toString()))))}`;
+  }
+
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    const currency = document.getElementById('currency').value;
+    const amount = document.getElementById('amount').value;
+    const description = document.getElementById('description').value.trim();
+    const completion = document.getElementById('completionDate').value;
+
+    if (!currency || !amount || !description || !completion) return;
+
+    currentRequest = {
+      id: makeRequestId(),
+      currency,
+      amount: Number(amount).toFixed(2),
+      description,
+      completion
+    };
+
+    const link = buildRequestLink(currentRequest);
+    requestLink.textContent = link;
+    result.classList.add('show');
+
+    result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  });
+
+  copyBtn.addEventListener('click', async () => {
+    const link = requestLink.textContent;
+
+    try {
+      await navigator.clipboard.writeText(link);
+      copyBtn.textContent = 'Copied';
+      setTimeout(() => copyBtn.textContent = 'Copy', 1400);
+    } catch {
+      const temp = document.createElement('textarea');
+      temp.value = link;
+      document.body.appendChild(temp);
+      temp.select();
+      document.execCommand('copy');
+      temp.remove();
+
+      copyBtn.textContent = 'Copied';
+      setTimeout(() => copyBtn.textContent = 'Copy', 1400);
+    }
+  });
+
+  whatsappBtn.addEventListener('click', () => {
+    if (!currentRequest) return;
+
+    const message =
+      `Payment request from OppaPay\\n\\n` +
+      `Amount: ${formatAmount(currentRequest.amount, currentRequest.currency)}\\n` +
+      `Description: ${currentRequest.description}\\n` +
+      `Completion date: ${currentRequest.completion}\\n\\n` +
+      `Pay here: ${requestLink.textContent}`;
+
+    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
+  });
+
+  emailBtn.addEventListener('click', () => {
+    if (!currentRequest) return;
+
+    const subject = `Payment request — ${formatAmount(currentRequest.amount, currentRequest.currency)}`;
+    const body =
+      `Hi,\\n\\n` +
+      `Please find the payment request below.\\n\\n` +
+      `Amount: ${formatAmount(currentRequest.amount, currentRequest.currency)}\\n` +
+      `Description: ${currentRequest.description}\\n` +
+      `Completion date: ${currentRequest.completion}\\n\\n` +
+      `Payment link: ${requestLink.textContent}\\n\\n` +
+      `Thank you.`;
+
+    window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  });
+
+  newRequestBtn.addEventListener('click', () => {
+    result.classList.remove('show');
+    form.reset();
+    document.getElementById('currency').value = 'MYR';
+    currentRequest = null;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  document.querySelectorAll('.eye-btn').forEach((button) => {
+    button.addEventListener('click', () => {
+      const amount = button.parentElement.querySelector('[data-amount]');
+      const isHidden = button.classList.toggle('is-hidden');
+
+      amount.textContent = isHidden ? 'RM ***' : amount.dataset.amount;
+      button.setAttribute('aria-pressed', String(isHidden));
+      button.setAttribute(
+        'aria-label',
+        isHidden ? 'Show amount' : 'Hide amount'
+      );
+    });
+  });
+
+  // Prevent choosing a completion date in the past.
+  const dateInput = document.getElementById('completionDate');
+  const today = new Date();
+  const localToday = new Date(today.getTime() - today.getTimezoneOffset() * 60000)
+    .toISOString()
+    .split('T')[0];
+  dateInput.min = localToday;
+</script>
+</body>
+</html>
